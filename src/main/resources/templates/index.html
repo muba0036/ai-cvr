@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="da" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ansøgningshjælper</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #1f2933; background: #f7f8fa; }
+        h1 { margin-bottom: .25rem; }
+        .lead { color: #52606d; margin-top: 0; }
+        form { background: #fff; padding: 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+        label { display: block; font-weight: 600; margin: 1rem 0 .35rem; }
+        input[type=text], textarea, select { width: 100%; box-sizing: border-box; padding: .6rem; border: 1px solid #cbd2d9; border-radius: 6px; font: inherit; }
+        textarea { min-height: 110px; resize: vertical; }
+        .hint { font-size: .85rem; color: #7b8794; margin-top: .25rem; }
+        .field-error { color: #c62828; font-size: .85rem; margin-top: .25rem; }
+        .error { background: #fdecea; color: #b71c1c; padding: .8rem 1rem; border-radius: 6px; margin-bottom: 1rem; }
+        button { margin-top: 1.5rem; padding: .75rem 1.5rem; background: #2563eb; color: #fff; border: 0; border-radius: 6px; font-size: 1rem; cursor: pointer; }
+        button:hover { background: #1d4ed8; }
+        .privacy { font-size: .85rem; color: #52606d; margin-top: 1.5rem; }
+    </style>
+</head>
+<body>
+<h1>Ansøgningshjælper</h1>
+<p class="lead">Få et personligt udkast til en praktikforespørgsel eller jobansøgning.</p>
+
+<div class="error" th:if="${error}" th:text="${error}"></div>
+
+<form th:action="@{/generate}" th:object="${form}" method="post"
+      onsubmit="this.querySelector('button').disabled=true; this.querySelector('button').textContent='Skriver udkast…';">
+    <label for="companyName">Virksomhedsnavn</label>
+    <input type="text" id="companyName" th:field="*{companyName}" placeholder="fx Novo Nordisk">
+    <div class="field-error" th:if="${#fields.hasErrors('companyName')}" th:errors="*{companyName}"></div>
+
+    <label for="type">Type</label>
+    <select id="type" th:field="*{type}">
+        <option th:each="t : ${types}" th:value="${t}" th:text="${t.label}"></option>
+    </select>
+
+    <label for="background">Din baggrund</label>
+    <textarea id="background" th:field="*{background}"
+              placeholder="Uddannelse, semester, kompetencer, projekter, erfaring…"></textarea>
+    <div class="hint">Skriv ikke telefonnummer, e-mail eller adresse. Dem udfylder du selv bagefter.</div>
+    <div class="field-error" th:if="${#fields.hasErrors('background')}" th:errors="*{background}"></div>
+
+    <label for="purpose">Formål</label>
+    <textarea id="purpose" th:field="*{purpose}"
+              placeholder="Hvad søger du, hvornår, og hvorfor netop denne virksomhed?"></textarea>
+    <div class="field-error" th:if="${#fields.hasErrors('purpose')}" th:errors="*{purpose}"></div>
+
+    <button type="submit">Lav udkast</button>
+</form>
+
+<p class="privacy">
+    Virksomhedsoplysninger hentes fra det offentlige CVR-register. Din tekst bliver ikke gemt.
+    Den sendes kun til AI-tjenesten for at lave udkastet. Appen sender ingen beskeder.
+</p>
+</body>
+</html>

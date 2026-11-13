@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="da" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Dit udkast</title>
+    <style>
+        body { font-family: system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; color: #1f2933; background: #f7f8fa; }
+        .card { background: #fff; padding: 1.25rem 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,.08); margin-bottom: 1.25rem; }
+        dl { display: grid; grid-template-columns: max-content 1fr; gap: .3rem 1rem; margin: 0; }
+        dt { font-weight: 600; color: #52606d; }
+        dd { margin: 0; }
+        .badge { font-size: .75rem; background: #e0e7ff; color: #3730a3; padding: .15rem .5rem; border-radius: 999px; margin-left: .5rem; }
+        textarea { width: 100%; box-sizing: border-box; min-height: 420px; padding: .8rem; border: 1px solid #cbd2d9; border-radius: 6px; font: inherit; line-height: 1.5; }
+        .actions { display: flex; gap: .75rem; margin-top: .75rem; flex-wrap: wrap; }
+        button, a.btn { padding: .6rem 1.2rem; border-radius: 6px; border: 0; font-size: .95rem; cursor: pointer; text-decoration: none; }
+        button { background: #2563eb; color: #fff; }
+        a.btn { background: #e4e7eb; color: #1f2933; }
+        .note { font-size: .85rem; color: #52606d; }
+        .contact { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: .75rem; }
+        .contact label { display: flex; flex-direction: column; font-weight: 600; font-size: .9rem; gap: .3rem; }
+        .contact input { padding: .5rem; border: 1px solid #cbd2d9; border-radius: 6px; font: inherit; font-weight: normal; }
+    </style>
+    <script>
+        // Kører kun i browseren - kontaktoplysninger forlader aldrig brugerens computer.
+        function fillContact() {
+            const draft = document.getElementById('draft');
+            const fields = [
+                [document.getElementById('cName').value.trim(),  /\[(dit |dine |fulde )*navn\]/gi],
+                [document.getElementById('cPhone').value.trim(), /\[(dit )?(telefon(nummer|nr\.?)?|tlf\.?(-?nr\.?)?|mobil(nummer)?)\]/gi],
+                [document.getElementById('cEmail').value.trim(), /\[(din )?(e-?mail|mail)(adresse)?\]/gi]
+            ];
+            let text = draft.value;
+            for (const [value, pattern] of fields) {
+                if (value) text = text.replace(pattern, value);
+            }
+            draft.value = text;
+        }
+    </script>
+</head>
+<body>
+<h1>Dit udkast</h1>
+
+<div class="card">
+    <h2 style="margin-top:0">
+        <span th:text="${company.name}">Virksomhed</span>
+        <span class="badge" th:if="${fromCache}">fra cache</span>
+    </h2>
+    <dl>
+        <dt>CVR</dt><dd th:text="${company.cvr} ?: '-'"></dd>
+        <dt>By</dt><dd th:text="${company.city} ?: '-'"></dd>
+        <dt>Branche</dt><dd th:text="${company.industry} ?: '-'"></dd>
+        <dt>Virksomhedsform</dt><dd th:text="${company.companyType} ?: '-'"></dd>
+        <dt>Ansatte</dt><dd th:text="${company.employees} ?: '-'"></dd>
+        <dt>Stiftet</dt><dd th:text="${company.startDate} ?: '-'"></dd>
+    </dl>
+    <p class="note">Kilde: CVR-registret via cvrapi.dk. Tjek at det er den rigtige virksomhed.</p>
+</div>
+
+<div class="card">
+    <h3 style="margin-top:0">Dine kontaktoplysninger</h3>
+    <p class="note" style="margin-top:0">
+        Udfyldes kun her i din browser. De sendes ikke til serveren eller til AI'en og gemmes ikke.
+    </p>
+    <div class="contact">
+        <label>Navn <input type="text" id="cName" autocomplete="name"></label>
+        <label>Telefon <input type="tel" id="cPhone" autocomplete="tel"></label>
+        <label>E-mail <input type="email" id="cEmail" autocomplete="email"></label>
+    </div>
+    <button type="button" onclick="fillContact()" style="margin-top:.75rem">Indsæt i udkast</button>
+</div>
+
+<div class="card">
+    <textarea id="draft" th:text="${draft}"></textarea>
+    <div class="actions">
+        <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('draft').value); this.textContent='Kopieret ✓';">Kopiér tekst</button>
+        <a class="btn" th:href="@{/}">Nyt udkast</a>
+    </div>
+    <p class="note">
+        Dette er et udkast skrevet af en AI. Læs det igennem, ret fejl, udfyld [pladsholdere]
+        og tilføj dine egne kontaktoplysninger, før du selv sender det.
+    </p>
+</div>
+</body>
+</html>
